@@ -1,0 +1,40 @@
+pipeline {
+    agent any  // Run the pipeline on any available Jenkins agent
+
+    stages {
+        stage('Checkout') {
+            steps {
+                // Pull the latest code from the Git repository
+                checkout scm
+            }
+        }
+
+        stage('Install Dependencies') {
+            steps {
+                // Install project dependencies (for Node.js project)
+                sh 'npm install'
+            }
+        }
+
+        stage('Run Tests') {
+            steps {
+                // Run automated tests
+                sh 'npm test'
+            }
+        }
+    }
+
+    post {
+        always {
+            // Archive test results and reports
+            junit '**/test-results.xml'
+            archiveArtifacts artifacts: '*/target/.jar', allowEmptyArchive: true
+        }
+        success {
+            echo 'Pipeline succeeded!'
+        }
+        failure {
+            echo 'Pipeline failed!'
+        }
+    }
+}
