@@ -1,0 +1,39 @@
+<!-- index.html -->
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Customer Support Chatbot</title>
+    <style>
+        /* Add CSS styles here */
+    </style>
+</head>
+<body>
+    <div id="chat-container">
+        <div id="chat-header">Customer Support Chatbot</div>
+        <div id="chat-messages"></div>
+        <input id="chat-input" type="text" placeholder="Type a message...">
+        <button id="chat-send">Send</button>
+    </div>
+
+    <script>
+        // Add JavaScript code here
+        const chatInput = document.getElementById('chat-input');
+        const chatSend = document.getElementById('chat-send');
+        const chatMessages = document.getElementById('chat-messages');
+
+        chatSend.addEventListener('click', () => {
+            const inputText = chatInput.value;
+            fetch('/chat', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({input: inputText})
+            })
+            .then(response => response.json())
+            .then(data => {
+                chatMessages.innerHTML += `<p>Bot: ${data.response}</p>`;
+                chatInput.value = '';
+            });
+        });
+    </script>
+</body>
+</html>
