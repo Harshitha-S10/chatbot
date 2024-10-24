@@ -1,0 +1,45 @@
+import nltk
+from nltk.stem import WordNetLemmatizer
+from nltk.tokenize import word_tokenize
+from nltk.corpus import stopwords
+from flask import Flask, request, jsonify
+
+app = Flask(__name__)
+
+lemmatizer = WordNetLemmatizer()
+
+intents = {
+    "greeting": ["hi", "hello", "hey"],
+    "goodbye": ["bye", "thank you"],
+    "order_status": ["track order", "order status"],
+    "return_policy": ["return policy"]
+}
+
+responses = {
+    "greeting": "Hello! How can I assist you today?",
+    "goodbye": "Thank you for reaching out!",
+    "order_status": "Please provide your order number.",
+    "return_policy": "You can return items within 30 days."
+}
+
+def process_input(input_text):
+    tokens = word_tokenize(input_text)
+    tokens = [token.lower() for token in tokens]
+    tokens = [lemmatizer.lemmatize(token) for token in tokens]
+    tokens = [token for token in tokens if token not in stopwords.words('english')]
+
+    for intent, keywords in intents.items():
+        for keyword in keywords:
+            if keyword in tokens:
+                return responses[intent]
+
+    return "Sorry, I didn't understand that."
+
+@app.route('/chat', methods=['POST'])
+def chat():
+    input_text = request.json['input']
+    response = process_input(input_text)
+    return jsonify({'response': response})
+
+if __name__ == '__main__':
+    app.run(debug=True)
